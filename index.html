@@ -118,6 +118,8 @@ button{cursor:pointer}
 .meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
 .meta span{font-size:.78rem;border:1px solid #666;border-radius:3px;padding:2px 7px;color:#ddd}
 .meta span.g{border-color:#46d369;color:#46d369}
+.sinopse{color:#ddd;font-size:.95rem;line-height:1.55;margin:0 0 16px;max-width:60ch;white-space:pre-line}.sinopse.curta{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}.lerMais{background:none;border:0;color:#fff;font-weight:600;padding:0;margin:-8px 0 16px;text-decoration:underline}
+#heroSin{color:#e5e5e5;font-size:1rem;line-height:1.5;margin:-6px 0 18px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;max-width:52ch;text-shadow:0 1px 6px rgba(0,0,0,.6)}
 .fechar{position:absolute;top:12px;right:12px;z-index:3;width:38px;height:38px;border-radius:50%;border:0;background:#181818;color:#fff;font-size:1.3rem}
 .detMais{padding:0 0 26px}
 .detMais .fileira h2{margin-left:34px}
@@ -174,6 +176,7 @@ button{cursor:pointer}
         <div class="selo"><b>B</b> Destaque do dia</div>
         <h1 id="heroTit"></h1>
         <div id="heroInfo"></div>
+        <div id="heroSin"></div>
         <div class="botoes">
           <a id="heroLer" class="bt branco" target="_blank" rel="noopener">▶ Abrir no Telegram</a>
           <button id="heroMais" class="bt cinza">ⓘ Mais informações</button>
@@ -259,6 +262,28 @@ async function procurarCapa(l){
     capas[l.id] = url; salvar(); return url;
   } catch(e) { bloqueado = Date.now()+60000; return null; }
 }
+/* ---------- sinopse (Apple Books, buscada na hora e guardada no aparelho) ---------- */
+const SK='nb-sin-v1'; let sins={}; try{sins=JSON.parse(localStorage.getItem(SK)||'{}')}catch(e){}
+const salvarSin=()=>{ try{ const ks=Object.keys(sins); if(ks.length>400) ks.slice(0,ks.length-400).forEach(k=>delete sins[k]); localStorage.setItem(SK,JSON.stringify(sins)); }catch(e){} };
+const textoLimpo = h => { const d = new DOMParser().parseFromString(String(h||'').replace(/<br\s*\/?>/gi,'\n').replace(/<\/p>/gi,'\n'),'text/html'); return (d.body.textContent||'').replace(/\n{3,}/g,'\n\n').trim(); };
+async function sinopse(l){
+  if (l.id in sins) return sins[l.id];
+  try {
+    let x = null;
+    if (l.tid) { const r = await fetch(`https://itunes.apple.com/lookup?country=br&id=${l.tid}`); if (r.status===200) x = (await r.json()).results?.[0]; }
+    else {
+      const termo = l.titulo.replace(/\(.*?\)|\[.*?\]/g,'').trim(), tw = pal(termo); if (!tw.length) return '';
+      const r = await fetch(`https://itunes.apple.com/search?country=br&entity=ebook&limit=8&term=${encodeURIComponent((termo+' '+(l.autor||'')).slice(0,120))}`);
+      if (r.status!==200) return '';
+      const todos = new Set([...tw, ...pal(l.autor)]);
+      for (const y of (await r.json()).results||[]) { const nw = pal(y.trackName); if(!nw.length) continue; const ns=new Set(nw);
+        const hit=tw.filter(w=>ns.has(w)).length/tw.length, back=nw.filter(w=>todos.has(w)).length/nw.length;
+        if ((hit>=.75&&back>=.4)||(back>=.85&&nw.length>=2&&hit>=.3)) { x = y; break; } }
+      if (x && !urlCapa(l)) { capas[l.id] = x.artworkUrl100.replace('100x100bb','300x450bb'); salvar(); }
+    }
+    sins[l.id] = x ? textoLimpo(x.description) : ''; salvarSin(); return sins[l.id];
+  } catch(e) { return ''; }
+}
 const filaCapas = []; let ativos = 0, agendado = false;
 function rodarFila(){
   agendado = false;
@@ -320,6 +345,7 @@ function mostrarHero(l){
   $('#heroTit').textContent = l.titulo;
   $('#heroInfo').innerHTML = `<span class="g">${esc(l.genero)}</span>${l.autor?' · '+esc(l.autor):''}${l.tipo?' · '+esc(l.tipo):''}`;
   $('#heroLer').href = linkTg(l); $('#heroMais').onclick = () => detalhe(l);
+  $('#heroSin').textContent=''; sinopse(l).then(t=>{ $('#heroSin').textContent = t||''; });
   if (!urlCapa(l)) procurarCapa(l).then(x=>{ if(x) heroCapa(x,l); });
 }
 
@@ -369,6 +395,7 @@ function detalhe(l){
     <div class="detCapa">${u?`<img src="${esc(u)}" alt="">`:gerada(l)}</div>
     <div class="detTxt"><h3>${esc(l.titulo)}</h3>${l.autor?`<div class="autor">${esc(l.autor)}</div>`:''}
       <div class="meta"><span class="g">${esc(l.genero)}</span>${[l.tipo,l.tamanho].filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join('')}</div>
+      <p class="sinopse curta" id="detSin"></p><button class="lerMais hidden" id="detLer">Ler mais</button>
       <div class="botoes"><a class="bt branco" href="${linkTg(l)}" target="_blank" rel="noopener">▶ Abrir no Telegram</a><button class="bt cinza" data-gen>Mais de ${esc(l.genero)}</button></div></div></div>
     <div class="detMais"></div></div>`;
   d.classList.remove('hidden'); d.scrollTop=0; requestAnimationFrame(()=>d.classList.add('on')); document.body.style.overflow='hidden';
@@ -377,6 +404,9 @@ function detalhe(l){
   const caixa = d.querySelector('.detMais');
   if (l.autor) fileira(`Mais de ${l.autor}`, LIVROS.filter(x=>x.autor===l.autor && x.id!==l.id).slice(0,30), null, caixa);
   fileira(`Parecidos em ${l.genero}`, escolher(LIVROS.filter(x=>x.genero===l.genero&&x.id!==l.id), 30, l.id), null, caixa);
+  const ps = d.querySelector('#detSin'); ps.textContent = 'Carregando sinopse…';
+  sinopse(l).then(t=>{ if(!ps.isConnected) return; ps.textContent = t || 'Sinopse não disponível para este livro.';
+    const lm = d.querySelector('#detLer'); if (t && t.length > 380) { lm.classList.remove('hidden'); lm.onclick=()=>{ ps.classList.toggle('curta'); lm.textContent = ps.classList.contains('curta')?'Ler mais':'Ler menos'; }; } });
   if (!u) procurarCapa(l).then(x=>{ if(x && d.querySelector('.detCapa')){ d.querySelector('.detCapa').innerHTML=`<img src="${esc(x)}" alt="">`; d.querySelector('.detFundo').style.backgroundImage=`url('${x}')`; } });
 }
 function fecharDet(){ const d=$('#det'); d.classList.remove('on'); document.body.style.overflow=''; setTimeout(()=>d.classList.add('hidden'),200); }
