@@ -2,251 +2,420 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#1f1a17">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b0b0c">
 <meta name="robots" content="noindex,nofollow">
 <title>Nossa Biblioteca</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%23e50914'/><text x='50' y='72' font-size='64' text-anchor='middle' fill='white' font-family='Georgia' font-weight='bold'>B</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,600;1,500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#1f1a17;--card:#2b2420;--ink:#f3ece4;--mute:#b5a99c;--acc:#e0a458;--line:#3d342e}
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif}
+:root{--bg:#0b0b0c;--bg2:#141416;--card:#1c1c20;--ink:#f5f5f1;--mute:#a3a3a3;--red:#e50914;--line:#2a2a2e}
+*{box-sizing:border-box;min-width:0}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,sans-serif;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
 button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
 .hidden{display:none!important}
-/* login */
-#login{min-height:100vh;display:grid;place-items:center;padding:24px}
-#login form{width:100%;max-width:340px;background:var(--card);padding:28px;border-radius:14px;border:1px solid var(--line)}
-#login h1{margin:0 0 4px;font-size:1.7rem}
-#login p{margin:0 0 20px;color:var(--mute);font-size:.95rem}
-#login input{width:100%;padding:12px;margin-bottom:12px;border-radius:8px;border:1px solid var(--line);background:var(--bg)}
-#login button{width:100%;padding:12px;border:0;border-radius:8px;background:var(--acc);color:#1f1a17;font-weight:bold;cursor:pointer}
-#erro{color:#ff8a7a;min-height:1.2em;font-size:.9rem;margin-top:10px}
-/* app */
-header{position:sticky;top:0;z-index:5;background:rgba(31,26,23,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:12px 14px 10px}
-.top{display:flex;align-items:center;gap:10px;justify-content:space-between}
-.top h1{margin:0;font-size:1.25rem}
-.top small{color:var(--mute)}
-#sair{background:none;border:1px solid var(--line);border-radius:8px;padding:6px 10px;color:var(--mute);cursor:pointer}
-.ctl{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-#busca{flex:1 1 220px;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card)}
-select{padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card)}
-#generos{display:flex;gap:6px;overflow-x:auto;margin-top:10px;padding-bottom:2px;scrollbar-width:none}
-#generos button{flex:0 0 auto;padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer;font-family:system-ui,sans-serif;font-size:.85rem;white-space:nowrap}
-#generos button small{color:var(--mute);margin-left:4px}
-#generos button.on{background:var(--acc);color:#1f1a17;border-color:var(--acc)}#generos button.on small{color:#1f1a17}
-.prat{grid-column:1/-1;margin:10px 0 -4px;font-size:1.1rem;color:var(--acc);border-bottom:1px solid var(--line);padding-bottom:4px}
-#letras{display:flex;gap:4px;overflow-x:auto;margin-top:10px;padding-bottom:2px;scrollbar-width:none}
-#letras button{flex:0 0 auto;min-width:30px;padding:5px 7px;border-radius:6px;border:1px solid var(--line);background:none;color:var(--mute);cursor:pointer;font-family:system-ui,sans-serif;font-size:.85rem}
-#letras button.on{background:var(--acc);color:#1f1a17;border-color:var(--acc)}
-#info{color:var(--mute);font-size:.9rem;padding:10px 14px 0}
-#grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:16px;padding:14px}
-.livro{background:var(--card);border-radius:10px;overflow:hidden;border:1px solid var(--line);display:flex;flex-direction:column;cursor:pointer;text-align:left;padding:0}
-.capa{aspect-ratio:2/3;width:100%;object-fit:cover;background:#3a302a;display:block}
-.capa.gerada{display:flex;align-items:center;justify-content:center;padding:10px;text-align:center;font-size:.9rem;line-height:1.25;color:#fff}
-.meta{padding:8px 9px 10px}
-.t{font-size:.88rem;line-height:1.2;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.a{font-size:.78rem;color:var(--mute);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tag{display:inline-block;margin-top:6px;font-family:system-ui,sans-serif;font-size:.68rem;padding:2px 6px;border-radius:4px;background:var(--line);color:var(--acc)}
-#mais{display:block;margin:0 auto 40px;padding:12px 22px;border-radius:10px;border:1px solid var(--acc);background:none;color:var(--acc);cursor:pointer}
-/* detalhe */
-#det{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center;z-index:10}
-#det .box{background:var(--card);width:100%;max-width:520px;border-radius:16px 16px 0 0;padding:20px;display:flex;gap:16px;max-height:90vh;overflow:auto}
-@media(min-width:600px){#det{align-items:center}#det .box{border-radius:16px}}
-#det img,#det .capa{width:120px;flex:0 0 120px;border-radius:8px}
-#det h2{margin:0 0 6px;font-size:1.2rem}
-#det p{margin:4px 0;color:var(--mute);font-size:.9rem}
-#det a.btn{display:inline-block;margin-top:12px;padding:11px 16px;border-radius:10px;background:var(--acc);color:#1f1a17;text-decoration:none;font-weight:bold}
-#det .fechar{margin-top:10px;background:none;border:0;color:var(--mute);text-decoration:underline;cursor:pointer;padding:0}
+::-webkit-scrollbar{height:0;width:8px}::-webkit-scrollbar-thumb{background:#333;border-radius:4px}
+
+#login{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at top,#3a0a0d 0%,#0b0b0c 60%)}
+#login form{width:100%;max-width:380px;background:rgba(0,0,0,.72);padding:40px 34px;border-radius:8px}
+.logo{font-family:"Bebas Neue",Impact,sans-serif;color:var(--red);letter-spacing:1.5px;font-size:2rem;line-height:1;white-space:nowrap;cursor:pointer}
+#login .logo{font-size:2.6rem;margin-bottom:26px;display:block;cursor:default}
+#login input{width:100%;height:50px;padding:0 16px;margin-bottom:14px;border-radius:4px;border:1px solid #444;background:#333;font-size:16px}
+#login input:focus{outline:2px solid #fff;outline-offset:-1px}
+#login button{width:100%;height:50px;border:0;border-radius:4px;background:var(--red);color:#fff;font-weight:700;font-size:16px;margin-top:10px}
+#erro{color:#e87c03;min-height:1.3em;font-size:.9rem;margin-top:12px}
+#login p{color:var(--mute);font-size:.85rem;margin:18px 0 0}
+
+#topo{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;gap:22px;padding:14px 4vw;background:linear-gradient(180deg,rgba(0,0,0,.85),transparent);transition:background .3s}
+#topo.solido{background:var(--bg)}
+#nav{display:flex;gap:18px;font-size:.92rem}
+#nav button{background:none;border:0;color:#e5e5e5;padding:4px 0}
+#nav button.on{color:#fff;font-weight:700}
+#nav button:hover{color:#b3b3b3}
+.dir{margin-left:auto;display:flex;align-items:center;gap:12px}
+#caixaBusca{display:flex;align-items:center;gap:8px;border:1px solid transparent;padding:6px 8px;border-radius:4px;transition:all .25s}
+#caixaBusca.aberta{border-color:#fff;background:rgba(0,0,0,.75)}
+#caixaBusca button{background:none;border:0;padding:0;display:grid;place-items:center}
+#busca{width:0;border:0;background:none;outline:0;transition:width .3s;font-size:16px}
+#caixaBusca.aberta #busca{width:min(240px,42vw)}
+#sair{background:none;border:1px solid #555;color:#ccc;border-radius:4px;padding:5px 10px;font-size:.8rem}
+#generoSel{display:none;background:#000;border:1px solid #fff;border-radius:2px;padding:5px 8px;font-size:.85rem}
+
+#hero{position:relative;height:min(78vh,640px);min-height:460px;display:flex;align-items:flex-end;padding:0 4vw 13vh;overflow:hidden}
+#heroFundo{position:absolute;inset:-40px;background-size:cover;background-position:center;filter:blur(28px) brightness(.55) saturate(1.3);transform:scale(1.1)}
+#hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,11,12,.95) 0%,rgba(11,11,12,.55) 45%,rgba(11,11,12,.1) 75%),linear-gradient(0deg,var(--bg) 0%,transparent 35%)}
+#heroCapa{position:absolute;right:8vw;bottom:14vh;width:min(250px,26vw);aspect-ratio:2/3;border-radius:6px;box-shadow:0 30px 60px rgba(0,0,0,.7);z-index:1;overflow:hidden;transform:rotate(2deg)}
+#heroCapa>*{width:100%;height:100%}
+.heroTxt{position:relative;z-index:2;max-width:560px}
+.selo{display:inline-flex;align-items:center;gap:8px;font-weight:700;letter-spacing:3px;font-size:.78rem;color:#ddd;text-transform:uppercase}
+.selo b{color:var(--red);font-family:"Bebas Neue";font-size:1.4rem;letter-spacing:1px}
+#heroTit{font-family:Lora,Georgia,serif;font-size:clamp(30px,5vw,54px);line-height:1.05;margin:10px 0 8px;text-wrap:balance;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+#heroInfo{color:#ddd;font-size:1rem;margin-bottom:18px}
+#heroInfo .g,.verde{color:#46d369;font-weight:600}
+.botoes{display:flex;gap:10px;flex-wrap:wrap}
+.bt{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 22px;border-radius:4px;border:0;font-weight:700;font-size:1rem;text-decoration:none}
+.bt.branco{background:#fff;color:#000}.bt.branco:hover{background:rgba(255,255,255,.78)}
+.bt.cinza{background:rgba(109,109,110,.7);color:#fff}.bt.cinza:hover{background:rgba(109,109,110,.45)}
+
+#fileiras{position:relative;z-index:3;margin-top:-9vh;padding-bottom:60px}
+.fileira{margin:0 0 3.2vw}
+.fileira h2{font-size:clamp(1.05rem,1.6vw,1.4rem);font-weight:700;margin:0 4vw 10px;display:flex;align-items:baseline;gap:12px}
+.fileira h2 button{background:none;border:0;color:#54b9c5;font-size:.82rem;font-weight:600;padding:0}
+.trilho{position:relative}
+.faixa{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 4vw;padding:6px 4vw 22px;scroll-behavior:smooth;overscroll-behavior-x:contain;min-height:120px}
+.seta{position:absolute;top:6px;bottom:22px;width:4vw;min-width:34px;border:0;background:rgba(11,11,12,.6);color:#fff;font-size:2rem;z-index:6;opacity:0;transition:opacity .2s}
+.seta.esq{left:0}.seta.dir2{right:0}
+.trilho:hover .seta{opacity:1}
+@media(hover:none){.seta{display:none}}
+
+.livro{flex:0 0 clamp(112px,13.2vw,190px);scroll-snap-align:start;background:none;border:0;padding:0;text-align:left;position:relative;transition:transform .28s cubic-bezier(.2,.8,.2,1);z-index:1}
+.livro .cv{aspect-ratio:2/3;border-radius:4px;overflow:hidden;background:var(--card);box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.livro .cv img{width:100%;height:100%;object-fit:cover;display:block;animation:surge .45s ease}
+@keyframes surge{from{opacity:0}to{opacity:1}}
+.livro .nome{font-size:.78rem;color:#ddd;margin-top:6px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+@media(hover:hover){.livro:hover{transform:scale(1.08);z-index:5}.livro:hover .cv{box-shadow:0 14px 30px rgba(0,0,0,.8);outline:2px solid #fff}}
+.livro:focus-visible{outline:2px solid #fff;outline-offset:3px}
+
+.gerada{width:100%;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:12% 10%;position:relative;overflow:hidden}
+.gerada::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 10%,rgba(255,255,255,.18),transparent 45%),linear-gradient(160deg,transparent 55%,rgba(0,0,0,.35))}
+.gerada::after{content:"";position:absolute;left:10%;width:30%;top:52%;height:2px;background:rgba(255,255,255,.55)}
+.gerada .gt{position:relative;font-family:Lora,Georgia,serif;font-weight:600;font-size:clamp(.72rem,1.15vw,1rem);line-height:1.15;color:#fff;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;text-shadow:0 1px 3px rgba(0,0,0,.3)}
+.gerada .ga{position:relative;font-size:clamp(.6rem,.85vw,.75rem);color:rgba(255,255,255,.85);letter-spacing:.5px;text-transform:uppercase}
+
+#grade{padding:96px 4vw 60px}
+#gradeTopo{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;margin-bottom:14px}
+#gradeTit{font-size:clamp(1.5rem,3vw,2.3rem);margin:0;font-weight:700}
+#gradeInfo{color:var(--mute)}
+.filtros{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+.filtros select{background:#000;border:1px solid #555;border-radius:4px;padding:8px 10px;font-size:.88rem}
+#chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+#chips button{background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:.85rem;color:#ddd}
+#chips button:hover,#chips button.on{background:#fff;color:#000;border-color:#fff}
+#chips small{opacity:.65;margin-left:5px}
+#letras{display:flex;gap:4px;overflow-x:auto;margin-bottom:16px}
+#letras button{flex:0 0 auto;min-width:32px;padding:6px 8px;border-radius:4px;border:1px solid var(--line);background:none;color:var(--mute);font-size:.82rem}
+#letras button.on{background:var(--red);border-color:var(--red);color:#fff}
+#lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(104px,13vw,170px),1fr));gap:22px 10px}
+#lista .livro{flex:none;width:auto}
+#mais{display:block;margin:30px auto 0;height:44px;padding:0 26px;border-radius:4px;border:1px solid #666;background:none;color:#fff}
+#vazio{color:var(--mute);padding:40px 0;font-size:1.05rem}
+
+#det{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.72);overflow-y:auto;padding:4vh 12px;opacity:0;transition:opacity .2s}
+#det.on{opacity:1}
+#det .box{max-width:860px;margin:0 auto;background:var(--bg2);border-radius:8px;overflow:hidden;box-shadow:0 20px 60px #000;transform:translateY(20px) scale(.98);transition:transform .25s}
+#det.on .box{transform:none}
+.detTopo{position:relative;display:flex;gap:26px;padding:34px;align-items:flex-end;min-height:300px;overflow:hidden}
+.detFundo{position:absolute;inset:-40px;background-size:cover;background-position:center;filter:blur(26px) brightness(.4);transform:scale(1.1)}
+.detTopo::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,var(--bg2),transparent 70%)}
+.detCapa{position:relative;z-index:1;flex:0 0 clamp(120px,24vw,190px);aspect-ratio:2/3;border-radius:6px;overflow:hidden;box-shadow:0 14px 30px rgba(0,0,0,.6)}
+.detCapa>*,.detCapa img{width:100%;height:100%;object-fit:cover}
+.detTxt{position:relative;z-index:1}
+.detTxt h3{font-family:Lora,Georgia,serif;font-size:clamp(1.4rem,3vw,2.1rem);line-height:1.1;margin:0 0 6px}
+.detTxt .autor{color:#ddd;margin-bottom:10px;font-size:1.02rem}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.meta span{font-size:.78rem;border:1px solid #666;border-radius:3px;padding:2px 7px;color:#ddd}
+.meta span.g{border-color:#46d369;color:#46d369}
+.fechar{position:absolute;top:12px;right:12px;z-index:3;width:38px;height:38px;border-radius:50%;border:0;background:#181818;color:#fff;font-size:1.3rem}
+.detMais{padding:0 0 26px}
+.detMais .fileira h2{margin-left:34px}
+.detMais .faixa{padding-left:34px;scroll-padding-left:34px}
+@media(max-width:600px){
+  #nav{display:none}#generoSel{display:block;max-width:34vw}
+  .logo{font-size:1.5rem}
+  #topo{gap:10px}
+  #heroCapa{display:none}
+  #hero{min-height:520px;padding-bottom:16vh}
+  .detTopo{flex-direction:column;align-items:flex-start;padding:24px}
+  .detMais .fileira h2{margin-left:24px}.detMais .faixa{padding-left:24px}
+  #grade{padding-top:84px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
 
 <section id="login">
   <form id="f">
-    <h1>📚 Nossa Biblioteca</h1>
-    <p>Acervo particular. Entre com seu usuário.</p>
+    <span class="logo">NOSSA BIBLIOTECA</span>
     <input id="u" autocomplete="username" placeholder="Usuário" required autocapitalize="none">
     <input id="s" type="password" autocomplete="current-password" placeholder="Senha" required>
     <button>Entrar</button>
     <div id="erro"></div>
+    <p>Acervo particular. Só entra quem tem usuário e senha.</p>
   </form>
 </section>
 
-<section id="app" class="hidden">
-  <header>
-    <div class="top">
-      <div><h1>📚 Nossa Biblioteca</h1><small id="ola"></small></div>
+<div id="app" class="hidden">
+  <header id="topo">
+    <span class="logo" id="logoTopo">NOSSA BIBLIOTECA</span>
+    <nav id="nav">
+      <button data-v="inicio" class="on">Início</button>
+      <button data-v="todos">Todos os livros</button>
+      <button data-v="generos">Gêneros</button>
+    </nav>
+    <div class="dir">
+      <select id="generoSel" aria-label="Gênero"></select>
+      <div id="caixaBusca">
+        <button id="lupa" aria-label="Buscar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></svg></button>
+        <input id="busca" type="search" placeholder="Título, autor ou gênero">
+      </div>
       <button id="sair">Sair</button>
     </div>
-    <div class="ctl">
-      <input id="busca" type="search" placeholder="Buscar por título ou autor…">
-      <select id="tipo"><option value="">Todos os tipos</option></select>
-      <select id="ordem">
-        <option value="genero">Por gênero (prateleiras)</option>
-        <option value="titulo">A–Z por título</option>
-        <option value="autor">A–Z por autor</option>
-        <option value="recentes">Mais recentes no canal</option>
-      </select>
-    </div>
-    <div id="generos"></div>
-    <div id="letras"></div>
   </header>
-  <div id="info"></div>
-  <div id="grade"></div>
-  <button id="mais" class="hidden">Mostrar mais</button>
-</section>
 
-<div id="det" class="hidden"></div>
+  <main id="inicio">
+    <section id="hero">
+      <div id="heroFundo"></div>
+      <div id="heroCapa"></div>
+      <div class="heroTxt">
+        <div class="selo"><b>B</b> Destaque do dia</div>
+        <h1 id="heroTit"></h1>
+        <div id="heroInfo"></div>
+        <div class="botoes">
+          <a id="heroLer" class="bt branco" target="_blank" rel="noopener">▶ Abrir no Telegram</a>
+          <button id="heroMais" class="bt cinza">ⓘ Mais informações</button>
+        </div>
+      </div>
+    </section>
+    <div id="fileiras"></div>
+  </main>
+
+  <main id="grade" class="hidden">
+    <div id="gradeTopo">
+      <h1 id="gradeTit"></h1><span id="gradeInfo"></span>
+      <div class="filtros">
+        <select id="tipo" aria-label="Tipo de arquivo"></select>
+        <select id="ordem" aria-label="Ordem">
+          <option value="titulo">A–Z por título</option>
+          <option value="autor">A–Z por autor</option>
+          <option value="recentes">Mais recentes</option>
+        </select>
+      </div>
+    </div>
+    <div id="chips"></div>
+    <div id="letras"></div>
+    <div id="lista"></div>
+    <div id="vazio" class="hidden">Nenhum livro encontrado. Tente outro título, autor ou gênero.</div>
+    <button id="mais" class="hidden">Mostrar mais</button>
+  </main>
+</div>
+
+<div id="det" class="hidden" role="dialog" aria-modal="true"></div>
 
 <script>
+{
 const $ = s => document.querySelector(s);
 const enc = new TextEncoder(), dec = new TextDecoder();
 const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
 const norm = s => (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
-let LIVROS = [], CANAL = null, filtrados = [], mostrados = 0, letra = '', genero = '';
-const PAG = 60;
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let LIVROS = [], CANAL = null, GENEROS = [], CONT = {};
 
+/* ---------- login e cofre (AES-256) ---------- */
 async function chaveDoUsuario(user, senha, salt) {
   const base = await crypto.subtle.importKey('raw', enc.encode(user.toLowerCase()+':'+senha), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey({name:'PBKDF2', salt, iterations:200000, hash:'SHA-256'}, base, {name:'AES-GCM', length:256}, false, ['decrypt']);
 }
-async function abrir(user, senha) {
-  const [usuarios, cofre] = await Promise.all([
-    fetch('usuarios.json',{cache:'no-cache'}).then(r=>r.json()),
-    fetch('acervo.bin',{cache:'no-cache'}).then(r=>r.json())
-  ]);
+async function abrirCofre(master) {
+  const c = await fetch('acervo.bin',{cache:'no-cache'}).then(r=>r.json());
+  const mk = await crypto.subtle.importKey('raw', master, 'AES-GCM', false, ['decrypt']);
+  return JSON.parse(dec.decode(await crypto.subtle.decrypt({name:'AES-GCM', iv:b64(c.iv)}, mk, b64(c.dados))));
+}
+async function entrar(user, senha) {
+  const usuarios = await fetch('usuarios.json',{cache:'no-cache'}).then(r=>r.json());
   const u = usuarios[user.trim().toLowerCase()];
   if (!u) throw new Error('Usuário ou senha incorretos.');
   let master;
-  try {
-    const k = await chaveDoUsuario(user.trim(), senha, b64(u.salt));
-    master = await crypto.subtle.decrypt({name:'AES-GCM', iv:b64(u.iv)}, k, b64(u.chave));
-  } catch(e) { throw new Error('Usuário ou senha incorretos.'); }
-  const mk = await crypto.subtle.importKey('raw', master, 'AES-GCM', false, ['decrypt']);
-  const dados = await crypto.subtle.decrypt({name:'AES-GCM', iv:b64(cofre.iv)}, mk, b64(cofre.dados));
-  return {nome: u.nome, master: btoa(String.fromCharCode(...new Uint8Array(master))), dados: JSON.parse(dec.decode(dados))};
-}
-async function abrirComMaster(masterB64) {
-  const cofre = await fetch('acervo.bin',{cache:'no-cache'}).then(r=>r.json());
-  const mk = await crypto.subtle.importKey('raw', b64(masterB64), 'AES-GCM', false, ['decrypt']);
-  return JSON.parse(dec.decode(await crypto.subtle.decrypt({name:'AES-GCM', iv:b64(cofre.iv)}, mk, b64(cofre.dados))));
+  try { master = await crypto.subtle.decrypt({name:'AES-GCM', iv:b64(u.iv)}, await chaveDoUsuario(user.trim(), senha, b64(u.salt)), b64(u.chave)); }
+  catch(e) { throw new Error('Usuário ou senha incorretos.'); }
+  return {nome:u.nome, master:btoa(String.fromCharCode(...new Uint8Array(master))), dados:await abrirCofre(master)};
 }
 
-function iniciar(nome, dados) {
-  CANAL = dados.canal; LIVROS = dados.livros;
-  LIVROS.forEach(l => { l._b = norm(l.titulo+' '+(l.autor||'')+' '+(l.genero||'')+' '+(l.sub||''));
-    if (l.capa && l.capa.startsWith('a:')) l.capa = 'https://is1-ssl.mzstatic.com/image/thumb/' + l.capa.slice(2) + '/300x450bb.jpg';
-    else if (l.capa && l.capa.startsWith('o:')) l.capa = 'https://covers.openlibrary.org/b/id/' + l.capa.slice(2) + '-M.jpg'; });
-  $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
-  $('#ola').textContent = `Olá, ${nome} · ${LIVROS.length.toLocaleString('pt-BR')} livros`;
-  const tipos = [...new Set(LIVROS.map(l=>l.tipo).filter(Boolean))].sort();
-  $('#tipo').innerHTML = '<option value="">Todos os tipos</option>' + tipos.map(t=>`<option>${t}</option>`).join('');
-  $('#letras').innerHTML = ['Todas', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ', '#'].map(x=>`<button data-l="${x==='Todas'?'':x}">${x}</button>`).join('');
-  $('#letras').firstChild.classList.add('on');
-  const cont = {}; LIVROS.forEach(l => { l.genero = l.genero || 'Outros'; cont[l.genero] = (cont[l.genero]||0) + 1; });
-  const gens = Object.keys(cont).sort((a,b)=> (a==='Outros')-(b==='Outros') || cont[b]-cont[a]);
-  $('#generos').innerHTML = `<button data-g="" class="on">Todos os gêneros</button>` + gens.map(g=>`<button data-g="${esc(g)}">${esc(g)}<small>${cont[g].toLocaleString('pt-BR')}</small></button>`).join('');
-  filtrar();
-}
-
-function chaveOrdem(l, campo){ return norm(campo==='autor' ? (l.autor||'~') : l.titulo).replace(/^(o|a|os|as|the|um|uma)\s+/,''); }
-function filtrar() {
-  const q = norm($('#busca').value).split(/\s+/).filter(Boolean);
-  const tipo = $('#tipo').value, ordem = $('#ordem').value;
-  filtrados = LIVROS.filter(l => (!tipo || l.tipo===tipo) && (!genero || l.genero===genero) && q.every(p => l._b.includes(p)) &&
-    (!letra || (()=>{ const c = chaveOrdem(l, ordem==='autor'?'autor':'titulo')[0]||'#'; return letra==='#' ? !/[a-z]/.test(c) : c===letra.toLowerCase(); })()));
-  if (ordem==='recentes') filtrados.sort((a,b)=>b.id-a.id);
-  else if (ordem==='genero') filtrados.sort((a,b)=> (a.genero==='Outros')-(b.genero==='Outros') || a.genero.localeCompare(b.genero,'pt') || chaveOrdem(a,'titulo').localeCompare(chaveOrdem(b,'titulo'),'pt'));
-  else filtrados.sort((a,b)=>chaveOrdem(a,ordem).localeCompare(chaveOrdem(b,ordem),'pt'));
-  $('#info').textContent = filtrados.length ? `${filtrados.length.toLocaleString('pt-BR')} livro(s)` : 'Nenhum livro encontrado.';
-  $('#grade').innerHTML = ''; mostrados = 0; mostrarMais();
-}
-function corDe(s){ let h=0; for(const c of s) h=(h*31+c.charCodeAt(0))%360; return `hsl(${h} 35% 32%)`; }
-function capaGerada(l){ return `<div class="capa gerada" style="background:${corDe(l.titulo)}">${esc(l.titulo)}</div>`; }
-function esc(s){ return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-function mostrarMais() {
-  const frag = document.createDocumentFragment();
-  const porGenero = $('#ordem').value==='genero';
-  filtrados.slice(mostrados, mostrados+PAG).forEach((l, i) => {
-    const ant = filtrados[mostrados+i-1];
-    if (porGenero && (!ant || ant.genero!==l.genero)) { const h = document.createElement('h2'); h.className='prat'; h.textContent = l.genero; frag.appendChild(h); }
-    const b = document.createElement('button'); b.className='livro';
-    b.innerHTML = `${l.capa?`<img class="capa" loading="lazy" alt="" src="${esc(l.capa)}">`:capaGerada(l)}<div class="meta"><div class="t">${esc(l.titulo)}</div>${l.autor?`<div class="a">${esc(l.autor)}</div>`:''}<span class="tag">${esc(l.genero)}</span></div>`;
-    b.onclick = () => detalhe(l);
-    frag.appendChild(b); b._l = l; if (!l.capa) observador.observe(b);
-  });
-  $('#grade').appendChild(frag);
-  mostrados += PAG;
-  $('#mais').classList.toggle('hidden', mostrados >= filtrados.length);
-}
-
-/* ---- capas reais (Open Library → Google Books), com cache no aparelho ---- */
-const CACHE_KEY = 'nb-capas-v3';
-let capas = {}; try { capas = JSON.parse(localStorage.getItem(CACHE_KEY)||'{}'); } catch(e){}
-const salvarCache = () => { try { localStorage.setItem(CACHE_KEY, JSON.stringify(capas)); } catch(e){} };
-const fila = []; let ativos = 0, bloqueadoAte = 0;
-async function buscarCapa(l) {
-  if (l.capa) return l.capa;
-  const k = String(l.id);
-  if (k in capas) return capas[k];
-  const termo = l.titulo.replace(/\(.*?\)|\[.*?\]/g,'').trim();
-  let url = '';
-  if (bloqueadoAte > Date.now()) return '';
+/* ---------- capas ---------- */
+const CORES = ['#7b1e2b','#1e3a5f','#2d5a3d','#5b2a6e','#8a4b16','#1f4e5a','#6b2f2f','#3b3f7a','#5a4a1e','#244f3f','#702a4f','#2a4a6e'];
+function cor(s){ let h=0; for (const c of s) h=(h*31+c.charCodeAt(0))>>>0; return CORES[h%CORES.length]; }
+function gerada(l){ return `<div class="gerada" style="background:linear-gradient(155deg,${cor(l.titulo)},#0d0d10 130%)"><div class="gt">${esc(l.titulo)}</div><div class="ga">${esc(l.autor||l.genero||'')}</div></div>`; }
+const CK='nb-capas-v4'; let capas={}; try{capas=JSON.parse(localStorage.getItem(CK)||'{}')}catch(e){}
+let salvarT; const salvar=()=>{clearTimeout(salvarT);salvarT=setTimeout(()=>{try{localStorage.setItem(CK,JSON.stringify(capas))}catch(e){}},800)};
+const urlCapa = l => l.capa || capas[l.id] || '';
+const pal = x => norm(x).replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(w=>w.length>2&&!['dos','das','para','com','uma','por','the'].includes(w));
+let bloqueado = 0;
+// busca a capa na Apple Books (conferindo se o título bate) e guarda no aparelho
+async function procurarCapa(l){
+  if (l.id in capas) return capas[l.id];
+  if (bloqueado > Date.now()) return null;
+  const termo = l.titulo.replace(/\(.*?\)|\[.*?\]/g,'').trim(), tw = pal(termo);
+  if (!tw.length) { capas[l.id]=''; return ''; }
   try {
     const r = await fetch(`https://itunes.apple.com/search?country=br&entity=ebook&limit=8&term=${encodeURIComponent((termo+' '+(l.autor||'')).slice(0,120))}`);
-    if (r.status !== 200) { bloqueadoAte = Date.now() + 60000; return ''; }
-    const pal = x => norm(x).replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(w=>w.length>2);
-    const tw = pal(termo), todos = new Set([...tw, ...pal(l.autor)]);
-    for (const x of (await r.json()).results || []) { const nw = pal(x.trackName); if (!nw.length || !tw.length) continue; const ns = new Set(nw);
-      const hit = tw.filter(w=>ns.has(w)).length/tw.length, back = nw.filter(w=>todos.has(w)).length/nw.length;
-      if ((hit>=0.75 && back>=0.4) || (back>=0.85 && nw.length>=2 && hit>=0.3)) { url = x.artworkUrl100.replace('100x100bb','300x450bb'); break; } }
-  } catch(e) { bloqueadoAte = Date.now() + 60000; return ''; }
-  capas[k] = url; salvarCache(); return url;
+    if (r.status!==200) { bloqueado = Date.now()+60000; return null; }
+    const todos = new Set([...tw, ...pal(l.autor)]); let url = '';
+    for (const x of (await r.json()).results||[]) { const nw = pal(x.trackName); if(!nw.length) continue; const ns=new Set(nw);
+      const hit=tw.filter(w=>ns.has(w)).length/tw.length, back=nw.filter(w=>todos.has(w)).length/nw.length;
+      if ((hit>=.75&&back>=.4)||(back>=.85&&nw.length>=2&&hit>=.3)) { url = x.artworkUrl100.replace('100x100bb','300x450bb'); break; } }
+    capas[l.id] = url; salvar(); return url;
+  } catch(e) { bloqueado = Date.now()+60000; return null; }
 }
-function processarFila(){
-  while (ativos < 2 && fila.length) {
-    const el = fila.shift(); if (!el.isConnected) continue; ativos++;
-    buscarCapa(el._l).then(url => {
-      if (url && el.isConnected) { const img = new Image(); img.className='capa'; img.loading='lazy'; img.alt='';
-        img.onload = () => el.firstChild.replaceWith(img); img.src = url; }
-    }).finally(()=>{ ativos--; processarFila(); });
+const filaCapas = []; let ativos = 0, agendado = false;
+function rodarFila(){
+  agendado = false;
+  while (ativos < 2 && filaCapas.length) {
+    if (bloqueado > Date.now()) { if(!agendado){agendado=true; setTimeout(rodarFila, bloqueado-Date.now()+500);} return; }
+    const el = filaCapas.pop(); if (!el.isConnected) continue; ativos++;
+    procurarCapa(el._l).then(u => { if (u) pintar(el, u); else if (u===null) filaCapas.unshift(el); })
+      .finally(()=>{ ativos--; setTimeout(rodarFila, 400); });
   }
 }
-const observador = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ observador.unobserve(e.target); fila.push(e.target); processarFila(); } }), {rootMargin:'300px'});
+function pintar(el, u){ const cv = el.querySelector('.cv'); const img = new Image(); img.alt=''; img.decoding='async'; img.onload=()=>{cv.innerHTML='';cv.appendChild(img)}; img.src=u; }
+const vigia = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ vigia.unobserve(e.target); filaCapas.push(e.target); rodarFila(); } }),{rootMargin:'150px'});
 
-function linkTelegram(l){ return CANAL ? `https://t.me/c/${CANAL}/${l.id}` : '#'; }
-async function detalhe(l) {
-  const url = await buscarCapa(l);
-  $('#det').innerHTML = `<div class="box">${url?`<img src="${url}" alt="">`:capaGerada(l)}<div>
-    <h2>${esc(l.titulo)}</h2>${l.autor?`<p>${esc(l.autor)}</p>`:''}
-    <p>${[l.genero, l.sub, l.tipo, l.tamanho].filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i).map(esc).join(' · ')}</p>
-    ${l.arquivo?`<p style="font-size:.8rem;word-break:break-all">${esc(l.arquivo)}</p>`:''}
-    <a class="btn" href="${linkTelegram(l)}" target="_blank" rel="noopener">Abrir no Telegram</a><br>
-    <button class="fechar">Fechar</button></div></div>`;
-  $('#det').classList.remove('hidden');
-  $('#det .fechar').onclick = () => $('#det').classList.add('hidden');
+function cartao(l){
+  const b = document.createElement('button'); b.className='livro'; b._l = l; b.title = l.titulo + (l.autor?' — '+l.autor:'');
+  const u = urlCapa(l);
+  b.innerHTML = `<div class="cv">${u?`<img src="${esc(u)}" alt="" loading="lazy" decoding="async">`:gerada(l)}</div><div class="nome">${esc(l.titulo)}</div>`;
+  if (!u && !(l.id in capas)) vigia.observe(b);
+  b.onclick = () => detalhe(l);
+  return b;
 }
-$('#det').onclick = e => { if (e.target.id==='det') $('#det').classList.add('hidden'); };
 
-let t; $('#busca').oninput = () => { clearTimeout(t); t = setTimeout(filtrar, 200); };
-$('#tipo').onchange = filtrar; $('#ordem').onchange = filtrar;
-$('#letras').onclick = e => { const b = e.target.closest('button'); if(!b) return;
-  document.querySelectorAll('#letras button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); letra = b.dataset.l; filtrar(); };
-$('#mais').onclick = mostrarMais;
-$('#generos').onclick = e => { const b = e.target.closest('button'); if(!b) return;
-  document.querySelectorAll('#generos button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); genero = b.dataset.g; filtrar(); };
-$('#sair').onclick = () => { sessionStorage.clear(); localStorage.removeItem('nb-sessao'); location.reload(); };
+/* ---------- início: destaque + fileiras ---------- */
+function embaralhar(a, semente){ let s=semente>>>0||1; const r=()=>(s=(s*1664525+1013904223)>>>0)/4294967296; for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]} return a; }
+const dia = Math.floor(Date.now()/864e5);
+function fileira(titulo, livros, verTudo, onde){
+  if (!livros.length) return;
+  const sec = document.createElement('section'); sec.className='fileira';
+  sec.innerHTML = `<h2>${esc(titulo)}${verTudo?' <button>Ver tudo ›</button>':''}</h2><div class="trilho"><button class="seta esq" aria-label="Voltar">‹</button><div class="faixa"></div><button class="seta dir2" aria-label="Avançar">›</button></div>`;
+  const faixa = sec.querySelector('.faixa');
+  if (verTudo) sec.querySelector('h2 button').onclick = verTudo;
+  sec.querySelector('.esq').onclick = () => faixa.scrollBy({left:-faixa.clientWidth*.9});
+  sec.querySelector('.dir2').onclick = () => faixa.scrollBy({left:faixa.clientWidth*.9});
+  const obs = new IntersectionObserver(es=>{ if(es[0].isIntersecting){ obs.disconnect(); const fr=document.createDocumentFragment(); livros.forEach(l=>fr.appendChild(cartao(l))); faixa.appendChild(fr);} },{rootMargin:'300px'});
+  obs.observe(sec);
+  (onde||$('#fileiras')).appendChild(sec);
+}
+const temCapa = l => !!(l.capa||capas[l.id]);
+function escolher(lista, n, sem){ const a=embaralhar(lista.filter(temCapa),sem), b=embaralhar(lista.filter(l=>!temCapa(l)),sem); return [...a,...b].slice(0,n); }
+function montarInicio(){
+  $('#fileiras').innerHTML='';
+  const candidatos = LIVROS.filter(l=>l.genero!=='Outros' && l.autor);
+  const hero = escolher(candidatos.length?candidatos:LIVROS, 1, dia)[0];
+  mostrarHero(hero);
+  fileira('Chegaram por último no canal', LIVROS.slice().sort((a,b)=>b.id-a.id).slice(0,40), ()=>abrirGrade({ordem:'recentes',genero:'',busca:''}));
+  const autores = {}; LIVROS.forEach(l=>{ if(l.autor) (autores[l.autor]=autores[l.autor]||[]).push(l); });
+  const topAutores = Object.entries(autores).filter(([,ls])=>ls.length>=4).sort((a,b)=>b[1].length-a[1].length).slice(0,20);
+  GENEROS.filter(g=>g!=='Outros').forEach((g,n)=>{
+    fileira(g, escolher(LIVROS.filter(l=>l.genero===g), 40, dia+n), ()=>abrirGrade({genero:g,busca:''}));
+    if (n%4===1 && topAutores.length) { const [a, ls] = topAutores[(dia+n)%topAutores.length]; fileira(`Coleção ${a}`, ls.slice(0,40), ()=>abrirGrade({busca:a,genero:''})); }
+  });
+  fileira('Outros arquivos do canal', LIVROS.filter(l=>l.genero==='Outros').slice(0,40), ()=>abrirGrade({genero:'Outros',busca:''}));
+}
+function heroCapa(u,l){ $('#heroFundo').style.backgroundImage = u?`url("${u}")`:`linear-gradient(135deg,${cor(l.titulo)},#000)`; $('#heroCapa').innerHTML = u?`<img src="${esc(u)}" alt="" style="object-fit:cover">`:gerada(l); }
+function mostrarHero(l){
+  heroCapa(urlCapa(l), l);
+  $('#heroTit').textContent = l.titulo;
+  $('#heroInfo').innerHTML = `<span class="g">${esc(l.genero)}</span>${l.autor?' · '+esc(l.autor):''}${l.tipo?' · '+esc(l.tipo):''}`;
+  $('#heroLer').href = linkTg(l); $('#heroMais').onclick = () => detalhe(l);
+  if (!urlCapa(l)) procurarCapa(l).then(x=>{ if(x) heroCapa(x,l); });
+}
 
-$('#f').onsubmit = async e => {
-  e.preventDefault(); $('#erro').textContent = 'Abrindo…';
-  try {
-    const r = await abrir($('#u').value, $('#s').value);
-    localStorage.setItem('nb-sessao', JSON.stringify({nome:r.nome, master:r.master}));
-    $('#erro').textContent = ''; iniciar(r.nome, r.dados);
-  } catch(err) { $('#erro').textContent = err.message || 'Erro ao abrir.'; }
-};
-(async () => { try { const s = JSON.parse(localStorage.getItem('nb-sessao')||'null');
-  if (s) iniciar(s.nome, await abrirComMaster(s.master)); } catch(e){ localStorage.removeItem('nb-sessao'); } })();
+/* ---------- grade: todos, gênero e busca ---------- */
+const G = {genero:'', busca:'', letra:'', filtrados:[], mostrados:0};
+const PAG = 60;
+function chaveOrdem(l,c){ return norm(c==='autor'?(l.autor||'~'):l.titulo).replace(/^(o|a|os|as|the|um|uma)\s+/,''); }
+function abrirGrade(o={}){
+  if ('genero' in o) G.genero = o.genero; if ('busca' in o) G.busca = o.busca; G.letra = '';
+  if (o.ordem) $('#ordem').value = o.ordem;
+  if ('busca' in o && $('#busca').value !== o.busca) { $('#busca').value = o.busca; $('#caixaBusca').classList.toggle('aberta', !!o.busca); }
+  $('#inicio').classList.add('hidden'); $('#grade').classList.remove('hidden');
+  $('#generoSel').value = G.genero;
+  marcarNav(o.nav || (G.genero ? 'generos' : 'todos'));
+  filtrar(); scrollTo({top:0, behavior:'instant'});
+}
+function voltarInicio(){ G.genero=''; G.busca=''; $('#busca').value=''; $('#caixaBusca').classList.remove('aberta'); $('#generoSel').value='';
+  $('#grade').classList.add('hidden'); $('#inicio').classList.remove('hidden'); marcarNav('inicio'); scrollTo({top:0, behavior:'instant'}); }
+function marcarNav(v){ document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on', b.dataset.v===v)); }
+function filtrar(){
+  const q = norm(G.busca).split(/\s+/).filter(Boolean), tipo = $('#tipo').value, ordem = $('#ordem').value;
+  const casa = l => q.every(p=>l._b.includes(p));
+  G.filtrados = LIVROS.filter(l => (!G.genero || l.genero===G.genero) && (!tipo || l.tipo===tipo) && casa(l) &&
+    (!G.letra || (()=>{ const c=chaveOrdem(l,ordem==='autor'?'autor':'titulo')[0]||'#'; return G.letra==='#'?!/[a-z]/.test(c):c===G.letra.toLowerCase(); })()));
+  if (ordem==='recentes') G.filtrados.sort((a,b)=>b.id-a.id);
+  else G.filtrados.sort((a,b)=>chaveOrdem(a,ordem).localeCompare(chaveOrdem(b,ordem),'pt'));
+  $('#gradeTit').textContent = G.busca ? `Resultados para “${G.busca}”` : (G.genero || 'Todos os livros');
+  $('#gradeInfo').textContent = `${G.filtrados.length.toLocaleString('pt-BR')} livro(s)` + (G.busca&&G.genero?` em ${G.genero}`:'');
+  // chips de gênero: na busca, mostram em quais gêneros estão os resultados (e destacam o gênero que tem o nome buscado)
+  const base = q.length ? (()=>{ const c={}; LIVROS.forEach(l=>{ if(casa(l)) c[l.genero]=(c[l.genero]||0)+1; }); return c; })() : CONT;
+  const gensQ = q.length ? GENEROS.filter(g => q.every(p=>norm(g).includes(p))) : [];
+  const lista = Object.keys(base).sort((a,b)=>(a==='Outros')-(b==='Outros')||base[b]-base[a]);
+  $('#chips').innerHTML = `<button data-g="" class="${G.genero?'':'on'}">Todos os gêneros</button>` + lista.map(g=>`<button data-g="${esc(g)}" class="${g===G.genero?'on':''}">${gensQ.includes(g)?'★ ':''}${esc(g)}<small>${base[g].toLocaleString('pt-BR')}</small></button>`).join('');
+  $('#letras').innerHTML = ['Todas',...'ABCDEFGHIJKLMNOPQRSTUVWXYZ','#'].map(x=>{ const v=x==='Todas'?'':x; return `<button data-l="${v}" class="${v===G.letra?'on':''}">${x}</button>`; }).join('');
+  $('#lista').innerHTML=''; G.mostrados=0; mais();
+  $('#vazio').classList.toggle('hidden', G.filtrados.length>0);
+}
+function mais(){ const fr=document.createDocumentFragment(); G.filtrados.slice(G.mostrados,G.mostrados+PAG).forEach(l=>fr.appendChild(cartao(l))); $('#lista').appendChild(fr); G.mostrados+=PAG; $('#mais').classList.toggle('hidden', G.mostrados>=G.filtrados.length); }
+new IntersectionObserver(es=>{ if(es[0].isIntersecting && !$('#mais').classList.contains('hidden')) mais(); },{rootMargin:'600px'}).observe($('#mais'));
+
+/* ---------- detalhe ---------- */
+const linkTg = l => CANAL ? `https://t.me/c/${CANAL}/${l.id}` : '#';
+function detalhe(l){
+  const u = urlCapa(l), d = $('#det');
+  d.innerHTML = `<div class="box"><div class="detTopo"><div class="detFundo" style="background-image:${u?`url('${esc(u)}')`:`linear-gradient(135deg,${cor(l.titulo)},#000)`}"></div>
+    <button class="fechar" aria-label="Fechar">✕</button>
+    <div class="detCapa">${u?`<img src="${esc(u)}" alt="">`:gerada(l)}</div>
+    <div class="detTxt"><h3>${esc(l.titulo)}</h3>${l.autor?`<div class="autor">${esc(l.autor)}</div>`:''}
+      <div class="meta"><span class="g">${esc(l.genero)}</span>${[l.tipo,l.tamanho].filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join('')}</div>
+      <div class="botoes"><a class="bt branco" href="${linkTg(l)}" target="_blank" rel="noopener">▶ Abrir no Telegram</a><button class="bt cinza" data-gen>Mais de ${esc(l.genero)}</button></div></div></div>
+    <div class="detMais"></div></div>`;
+  d.classList.remove('hidden'); d.scrollTop=0; requestAnimationFrame(()=>d.classList.add('on')); document.body.style.overflow='hidden';
+  d.querySelector('.fechar').onclick = fecharDet;
+  d.querySelector('[data-gen]').onclick = () => { fecharDet(); abrirGrade({genero:l.genero, busca:''}); };
+  const caixa = d.querySelector('.detMais');
+  if (l.autor) fileira(`Mais de ${l.autor}`, LIVROS.filter(x=>x.autor===l.autor && x.id!==l.id).slice(0,30), null, caixa);
+  fileira(`Parecidos em ${l.genero}`, escolher(LIVROS.filter(x=>x.genero===l.genero&&x.id!==l.id), 30, l.id), null, caixa);
+  if (!u) procurarCapa(l).then(x=>{ if(x && d.querySelector('.detCapa')){ d.querySelector('.detCapa').innerHTML=`<img src="${esc(x)}" alt="">`; d.querySelector('.detFundo').style.backgroundImage=`url('${x}')`; } });
+}
+function fecharDet(){ const d=$('#det'); d.classList.remove('on'); document.body.style.overflow=''; setTimeout(()=>d.classList.add('hidden'),200); }
+$('#det').onclick = e => { if (e.target.id==='det') fecharDet(); };
+addEventListener('keydown', e => { if (e.key==='Escape' && !$('#det').classList.contains('hidden')) fecharDet(); });
+
+/* ---------- iniciar ---------- */
+function iniciar(nome, dados){
+  CANAL = dados.canal; LIVROS = dados.livros; CONT = {};
+  LIVROS.forEach(l=>{
+    l.genero = l.genero || 'Outros';
+    if (l.capa?.startsWith('a:')) l.capa='https://is1-ssl.mzstatic.com/image/thumb/'+l.capa.slice(2)+'/300x450bb.jpg';
+    else if (l.capa?.startsWith('o:')) l.capa='https://covers.openlibrary.org/b/id/'+l.capa.slice(2)+'-M.jpg';
+    l._b = norm(l.titulo+' '+(l.autor||'')+' '+l.genero);
+    CONT[l.genero]=(CONT[l.genero]||0)+1;
+  });
+  GENEROS = Object.keys(CONT).sort((a,b)=>(a==='Outros')-(b==='Outros')||CONT[b]-CONT[a]);
+  $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
+  $('#generoSel').innerHTML = `<option value="">Gêneros</option>` + GENEROS.map(g=>`<option>${esc(g)}</option>`).join('');
+  $('#tipo').innerHTML = '<option value="">Todos os tipos</option>' + [...new Set(LIVROS.map(l=>l.tipo).filter(Boolean))].sort().map(t=>`<option>${esc(t)}</option>`).join('');
+  $('#sair').title = `Conectado como ${nome}`;
+  montarInicio();
+}
+addEventListener('scroll', ()=>$('#topo').classList.toggle('solido', scrollY>60), {passive:true});
+$('#nav').onclick = e => { const v = e.target.closest('button')?.dataset.v; if(!v) return;
+  if (v==='inicio') voltarInicio(); else abrirGrade({genero:'', busca:'', nav:v}); };
+$('#logoTopo').onclick = voltarInicio;
+$('#generoSel').onchange = e => e.target.value ? abrirGrade({genero:e.target.value, busca:''}) : voltarInicio();
+$('#lupa').onclick = () => { $('#caixaBusca').classList.add('aberta'); $('#busca').focus(); };
+$('#busca').onblur = () => { if(!$('#busca').value) $('#caixaBusca').classList.remove('aberta'); };
+let tb; $('#busca').oninput = () => { clearTimeout(tb); tb=setTimeout(()=>{ const v=$('#busca').value.trim();
+  if (v) abrirGrade({busca:v, genero:''}); else if (G.genero) { G.busca=''; filtrar(); } else voltarInicio(); },250); };
+$('#chips').onclick = e => { const b=e.target.closest('button'); if(!b) return; G.genero=b.dataset.g; G.letra=''; $('#generoSel').value=G.genero; filtrar(); };
+$('#letras').onclick = e => { const b=e.target.closest('button'); if(!b) return; G.letra=b.dataset.l; filtrar(); };
+$('#tipo').onchange = filtrar; $('#ordem').onchange = filtrar; $('#mais').onclick = mais;
+$('#sair').onclick = () => { try{localStorage.removeItem('nb-sessao')}catch(e){} location.reload(); };
+$('#f').onsubmit = async e => { e.preventDefault(); $('#erro').textContent='Abrindo a biblioteca…';
+  try { const r = await entrar($('#u').value, $('#s').value); try{localStorage.setItem('nb-sessao',JSON.stringify({nome:r.nome,master:r.master}))}catch(e){}
+    $('#erro').textContent=''; iniciar(r.nome, r.dados); } catch(err) { $('#erro').textContent = err.message || 'Erro ao abrir.'; } };
+(async()=>{ try { const s = JSON.parse(localStorage.getItem('nb-sessao')||'null'); if (s) iniciar(s.nome, await abrirCofre(b64(s.master))); } catch(e) { try{localStorage.removeItem('nb-sessao')}catch(_){} } })();
+}
 </script>
 </body>
 </html>
