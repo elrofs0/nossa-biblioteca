@@ -30,6 +30,11 @@ header{position:sticky;top:0;z-index:5;background:rgba(31,26,23,.96);backdrop-fi
 .ctl{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 #busca{flex:1 1 220px;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card)}
 select{padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card)}
+#generos{display:flex;gap:6px;overflow-x:auto;margin-top:10px;padding-bottom:2px;scrollbar-width:none}
+#generos button{flex:0 0 auto;padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer;font-family:system-ui,sans-serif;font-size:.85rem;white-space:nowrap}
+#generos button small{color:var(--mute);margin-left:4px}
+#generos button.on{background:var(--acc);color:#1f1a17;border-color:var(--acc)}#generos button.on small{color:#1f1a17}
+.prat{grid-column:1/-1;margin:10px 0 -4px;font-size:1.1rem;color:var(--acc);border-bottom:1px solid var(--line);padding-bottom:4px}
 #letras{display:flex;gap:4px;overflow-x:auto;margin-top:10px;padding-bottom:2px;scrollbar-width:none}
 #letras button{flex:0 0 auto;min-width:30px;padding:5px 7px;border-radius:6px;border:1px solid var(--line);background:none;color:var(--mute);cursor:pointer;font-family:system-ui,sans-serif;font-size:.85rem}
 #letras button.on{background:var(--acc);color:#1f1a17;border-color:var(--acc)}
@@ -77,11 +82,13 @@ select{padding:10px;border-radius:10px;border:1px solid var(--line);background:v
       <input id="busca" type="search" placeholder="Buscar por título ou autor…">
       <select id="tipo"><option value="">Todos os tipos</option></select>
       <select id="ordem">
+        <option value="genero">Por gênero (prateleiras)</option>
         <option value="titulo">A–Z por título</option>
         <option value="autor">A–Z por autor</option>
         <option value="recentes">Mais recentes no canal</option>
       </select>
     </div>
+    <div id="generos"></div>
     <div id="letras"></div>
   </header>
   <div id="info"></div>
@@ -96,7 +103,7 @@ const $ = s => document.querySelector(s);
 const enc = new TextEncoder(), dec = new TextDecoder();
 const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
 const norm = s => (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
-let LIVROS = [], CANAL = null, filtrados = [], mostrados = 0, letra = '';
+let LIVROS = [], CANAL = null, filtrados = [], mostrados = 0, letra = '', genero = '';
 const PAG = 60;
 
 async function chaveDoUsuario(user, senha, salt) {
@@ -127,13 +134,18 @@ async function abrirComMaster(masterB64) {
 
 function iniciar(nome, dados) {
   CANAL = dados.canal; LIVROS = dados.livros;
-  LIVROS.forEach(l => l._b = norm(l.titulo+' '+(l.autor||'')));
+  LIVROS.forEach(l => { l._b = norm(l.titulo+' '+(l.autor||'')+' '+(l.genero||'')+' '+(l.sub||''));
+    if (l.capa && l.capa.startsWith('a:')) l.capa = 'https://is1-ssl.mzstatic.com/image/thumb/' + l.capa.slice(2) + '/300x450bb.jpg';
+    else if (l.capa && l.capa.startsWith('o:')) l.capa = 'https://covers.openlibrary.org/b/id/' + l.capa.slice(2) + '-M.jpg'; });
   $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
   $('#ola').textContent = `Olá, ${nome} · ${LIVROS.length.toLocaleString('pt-BR')} livros`;
   const tipos = [...new Set(LIVROS.map(l=>l.tipo).filter(Boolean))].sort();
   $('#tipo').innerHTML = '<option value="">Todos os tipos</option>' + tipos.map(t=>`<option>${t}</option>`).join('');
   $('#letras').innerHTML = ['Todas', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ', '#'].map(x=>`<button data-l="${x==='Todas'?'':x}">${x}</button>`).join('');
   $('#letras').firstChild.classList.add('on');
+  const cont = {}; LIVROS.forEach(l => { l.genero = l.genero || 'Outros'; cont[l.genero] = (cont[l.genero]||0) + 1; });
+  const gens = Object.keys(cont).sort((a,b)=> (a==='Outros')-(b==='Outros') || cont[b]-cont[a]);
+  $('#generos').innerHTML = `<button data-g="" class="on">Todos os gêneros</button>` + gens.map(g=>`<button data-g="${esc(g)}">${esc(g)}<small>${cont[g].toLocaleString('pt-BR')}</small></button>`).join('');
   filtrar();
 }
 
@@ -141,9 +153,10 @@ function chaveOrdem(l, campo){ return norm(campo==='autor' ? (l.autor||'~') : l.
 function filtrar() {
   const q = norm($('#busca').value).split(/\s+/).filter(Boolean);
   const tipo = $('#tipo').value, ordem = $('#ordem').value;
-  filtrados = LIVROS.filter(l => (!tipo || l.tipo===tipo) && q.every(p => l._b.includes(p)) &&
+  filtrados = LIVROS.filter(l => (!tipo || l.tipo===tipo) && (!genero || l.genero===genero) && q.every(p => l._b.includes(p)) &&
     (!letra || (()=>{ const c = chaveOrdem(l, ordem==='autor'?'autor':'titulo')[0]||'#'; return letra==='#' ? !/[a-z]/.test(c) : c===letra.toLowerCase(); })()));
   if (ordem==='recentes') filtrados.sort((a,b)=>b.id-a.id);
+  else if (ordem==='genero') filtrados.sort((a,b)=> (a.genero==='Outros')-(b.genero==='Outros') || a.genero.localeCompare(b.genero,'pt') || chaveOrdem(a,'titulo').localeCompare(chaveOrdem(b,'titulo'),'pt'));
   else filtrados.sort((a,b)=>chaveOrdem(a,ordem).localeCompare(chaveOrdem(b,ordem),'pt'));
   $('#info').textContent = filtrados.length ? `${filtrados.length.toLocaleString('pt-BR')} livro(s)` : 'Nenhum livro encontrado.';
   $('#grade').innerHTML = ''; mostrados = 0; mostrarMais();
@@ -153,11 +166,14 @@ function capaGerada(l){ return `<div class="capa gerada" style="background:${cor
 function esc(s){ return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function mostrarMais() {
   const frag = document.createDocumentFragment();
-  filtrados.slice(mostrados, mostrados+PAG).forEach(l => {
+  const porGenero = $('#ordem').value==='genero';
+  filtrados.slice(mostrados, mostrados+PAG).forEach((l, i) => {
+    const ant = filtrados[mostrados+i-1];
+    if (porGenero && (!ant || ant.genero!==l.genero)) { const h = document.createElement('h2'); h.className='prat'; h.textContent = l.genero; frag.appendChild(h); }
     const b = document.createElement('button'); b.className='livro';
-    b.innerHTML = `${capaGerada(l)}<div class="meta"><div class="t">${esc(l.titulo)}</div>${l.autor?`<div class="a">${esc(l.autor)}</div>`:''}${l.tipo?`<span class="tag">${esc(l.tipo)}</span>`:''}</div>`;
+    b.innerHTML = `${l.capa?`<img class="capa" loading="lazy" alt="" src="${esc(l.capa)}">`:capaGerada(l)}<div class="meta"><div class="t">${esc(l.titulo)}</div>${l.autor?`<div class="a">${esc(l.autor)}</div>`:''}<span class="tag">${esc(l.genero)}</span></div>`;
     b.onclick = () => detalhe(l);
-    frag.appendChild(b); observador.observe(b); b._l = l;
+    frag.appendChild(b); b._l = l; if (!l.capa) observador.observe(b);
   });
   $('#grade').appendChild(frag);
   mostrados += PAG;
@@ -165,32 +181,30 @@ function mostrarMais() {
 }
 
 /* ---- capas reais (Open Library → Google Books), com cache no aparelho ---- */
-const CACHE_KEY = 'nb-capas-v2';
+const CACHE_KEY = 'nb-capas-v3';
 let capas = {}; try { capas = JSON.parse(localStorage.getItem(CACHE_KEY)||'{}'); } catch(e){}
 const salvarCache = () => { try { localStorage.setItem(CACHE_KEY, JSON.stringify(capas)); } catch(e){} };
-const fila = []; let ativos = 0;
+const fila = []; let ativos = 0, bloqueadoAte = 0;
 async function buscarCapa(l) {
   if (l.capa) return l.capa;
   const k = String(l.id);
   if (k in capas) return capas[k];
   const termo = l.titulo.replace(/\(.*?\)|\[.*?\]/g,'').trim();
   let url = '';
+  if (bloqueadoAte > Date.now()) return '';
   try {
-    const o = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(termo+' '+(l.autor||''))}&limit=5&fields=cover_i`).then(r=>r.json());
-    const d = (o.docs||[]).find(d=>d.cover_i);
-    if (d) url = `https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg`;
-  } catch(e){}
-  if (!url) try {
-    const q = 'intitle:' + encodeURIComponent(termo) + (l.autor ? '+inauthor:' + encodeURIComponent(l.autor) : '');
-    const r = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=1&fields=items(volumeInfo/imageLinks)`);
-    if (r.status === 429) return ''; // cota do Google esgotada hoje: não grava no cache, tenta outro dia
-    const im = (await r.json()).items?.[0]?.volumeInfo?.imageLinks;
-    if (im) url = (im.thumbnail||im.smallThumbnail).replace('http:','https:').replace('&edge=curl','');
-  } catch(e){ return ''; }
+    const r = await fetch(`https://itunes.apple.com/search?country=br&entity=ebook&limit=8&term=${encodeURIComponent((termo+' '+(l.autor||'')).slice(0,120))}`);
+    if (r.status !== 200) { bloqueadoAte = Date.now() + 60000; return ''; }
+    const pal = x => norm(x).replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(w=>w.length>2);
+    const tw = pal(termo), todos = new Set([...tw, ...pal(l.autor)]);
+    for (const x of (await r.json()).results || []) { const nw = pal(x.trackName); if (!nw.length || !tw.length) continue; const ns = new Set(nw);
+      const hit = tw.filter(w=>ns.has(w)).length/tw.length, back = nw.filter(w=>todos.has(w)).length/nw.length;
+      if ((hit>=0.75 && back>=0.4) || (back>=0.85 && nw.length>=2 && hit>=0.3)) { url = x.artworkUrl100.replace('100x100bb','300x450bb'); break; } }
+  } catch(e) { bloqueadoAte = Date.now() + 60000; return ''; }
   capas[k] = url; salvarCache(); return url;
 }
 function processarFila(){
-  while (ativos < 4 && fila.length) {
+  while (ativos < 2 && fila.length) {
     const el = fila.shift(); if (!el.isConnected) continue; ativos++;
     buscarCapa(el._l).then(url => {
       if (url && el.isConnected) { const img = new Image(); img.className='capa'; img.loading='lazy'; img.alt='';
@@ -205,7 +219,7 @@ async function detalhe(l) {
   const url = await buscarCapa(l);
   $('#det').innerHTML = `<div class="box">${url?`<img src="${url}" alt="">`:capaGerada(l)}<div>
     <h2>${esc(l.titulo)}</h2>${l.autor?`<p>${esc(l.autor)}</p>`:''}
-    <p>${[l.tipo, l.tamanho, l.data].filter(Boolean).map(esc).join(' · ')}</p>
+    <p>${[l.genero, l.sub, l.tipo, l.tamanho].filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i).map(esc).join(' · ')}</p>
     ${l.arquivo?`<p style="font-size:.8rem;word-break:break-all">${esc(l.arquivo)}</p>`:''}
     <a class="btn" href="${linkTelegram(l)}" target="_blank" rel="noopener">Abrir no Telegram</a><br>
     <button class="fechar">Fechar</button></div></div>`;
@@ -219,6 +233,8 @@ $('#tipo').onchange = filtrar; $('#ordem').onchange = filtrar;
 $('#letras').onclick = e => { const b = e.target.closest('button'); if(!b) return;
   document.querySelectorAll('#letras button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); letra = b.dataset.l; filtrar(); };
 $('#mais').onclick = mostrarMais;
+$('#generos').onclick = e => { const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#generos button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); genero = b.dataset.g; filtrar(); };
 $('#sair').onclick = () => { sessionStorage.clear(); localStorage.removeItem('nb-sessao'); location.reload(); };
 
 $('#f').onsubmit = async e => {
