@@ -263,6 +263,8 @@ async function procurarCapa(l){
   } catch(e) { bloqueado = Date.now()+60000; return null; }
 }
 /* ---------- sinopse (Apple Books, buscada na hora e guardada no aparelho) ---------- */
+// chave do Google Livros: vem dentro do catálogo criptografado (só abre com login)
+let GKEY='';
 const SK='nb-sin-v1'; let sins={}; try{sins=JSON.parse(localStorage.getItem(SK)||'{}')}catch(e){}
 const salvarSin=()=>{ try{ const ks=Object.keys(sins); if(ks.length>400) ks.slice(0,ks.length-400).forEach(k=>delete sins[k]); localStorage.setItem(SK,JSON.stringify(sins)); }catch(e){} };
 const textoLimpo = h => { const d = new DOMParser().parseFromString(String(h||'').replace(/<br\s*\/?>/gi,'\n').replace(/<\/p>/gi,'\n'),'text/html'); return (d.body.textContent||'').replace(/\n{3,}/g,'\n\n').trim(); };
@@ -270,6 +272,11 @@ async function sinopse(l){
   if (l.id in sins) return sins[l.id];
   try {
     let x = null;
+    if (!l.tid && l.gid && GKEY) {
+      const r = await fetch(`https://www.googleapis.com/books/v1/volumes/${encodeURIComponent(l.gid)}?fields=volumeInfo/description&key=${GKEY}`);
+      const t = r.status===200 ? textoLimpo((await r.json()).volumeInfo?.description) : '';
+      sins[l.id] = t; salvarSin(); return t;
+    }
     if (l.tid) { const r = await fetch(`https://itunes.apple.com/lookup?country=br&id=${l.tid}`); if (r.status===200) x = (await r.json()).results?.[0]; }
     else {
       const termo = l.titulo.replace(/\(.*?\)|\[.*?\]/g,'').trim(), tw = pal(termo); if (!tw.length) return '';
@@ -415,10 +422,11 @@ addEventListener('keydown', e => { if (e.key==='Escape' && !$('#det').classList.
 
 /* ---------- iniciar ---------- */
 function iniciar(nome, dados){
-  CANAL = dados.canal; LIVROS = dados.livros; CONT = {};
+  CANAL = dados.canal; LIVROS = dados.livros; CONT = {}; GKEY = dados.gkey || '';
   LIVROS.forEach(l=>{
     l.genero = l.genero || 'Outros';
     if (l.capa?.startsWith('a:')) l.capa='https://is1-ssl.mzstatic.com/image/thumb/'+l.capa.slice(2)+'/300x450bb.jpg';
+    else if (l.capa?.startsWith('g:')) l.capa='https://books.google.com/books/content?id='+encodeURIComponent(l.capa.slice(2))+'&printsec=frontcover&img=1&zoom=1';
     else if (l.capa?.startsWith('o:')) l.capa='https://covers.openlibrary.org/b/id/'+l.capa.slice(2)+'-M.jpg';
     l._b = norm(l.titulo+' '+(l.autor||'')+' '+l.genero);
     CONT[l.genero]=(CONT[l.genero]||0)+1;
