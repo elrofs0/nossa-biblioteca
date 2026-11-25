@@ -300,16 +300,18 @@ const temCapa = l => !!(l.capa||capas[l.id]);
 function escolher(lista, n, sem){ const a=embaralhar(lista.filter(temCapa),sem), b=embaralhar(lista.filter(l=>!temCapa(l)),sem); return [...a,...b].slice(0,n); }
 function montarInicio(){
   $('#fileiras').innerHTML='';
-  const candidatos = LIVROS.filter(l=>l.genero!=='Outros' && l.autor);
+  const ADU='Adulto (+18)', livre = LIVROS.filter(l=>l.genero!==ADU);
+  const candidatos = livre.filter(l=>l.genero!=='Outros' && l.autor);
   const hero = escolher(candidatos.length?candidatos:LIVROS, 1, dia)[0];
   mostrarHero(hero);
-  fileira('Chegaram por último no canal', LIVROS.slice().sort((a,b)=>b.id-a.id).slice(0,40), ()=>abrirGrade({ordem:'recentes',genero:'',busca:''}));
-  const autores = {}; LIVROS.forEach(l=>{ if(l.autor) (autores[l.autor]=autores[l.autor]||[]).push(l); });
+  fileira('Chegaram por último no canal', livre.slice().sort((a,b)=>b.id-a.id).slice(0,40), ()=>abrirGrade({ordem:'recentes',genero:'',busca:''}));
+  const autores = {}; livre.forEach(l=>{ if(l.autor) (autores[l.autor]=autores[l.autor]||[]).push(l); });
   const topAutores = Object.entries(autores).filter(([,ls])=>ls.length>=4).sort((a,b)=>b[1].length-a[1].length).slice(0,20);
-  GENEROS.filter(g=>g!=='Outros').forEach((g,n)=>{
+  GENEROS.filter(g=>g!=='Outros'&&g!==ADU).forEach((g,n)=>{
     fileira(g, escolher(LIVROS.filter(l=>l.genero===g), 40, dia+n), ()=>abrirGrade({genero:g,busca:''}));
     if (n%4===1 && topAutores.length) { const [a, ls] = topAutores[(dia+n)%topAutores.length]; fileira(`Coleção ${a}`, ls.slice(0,40), ()=>abrirGrade({busca:a,genero:''})); }
   });
+  if (CONT[ADU]) fileira('Adulto (+18) — conteúdo erótico', LIVROS.filter(l=>l.genero===ADU).slice(0,40), ()=>abrirGrade({genero:ADU,busca:''}));
   fileira('Outros arquivos do canal', LIVROS.filter(l=>l.genero==='Outros').slice(0,40), ()=>abrirGrade({genero:'Outros',busca:''}));
 }
 function heroCapa(u,l){ $('#heroFundo').style.backgroundImage = u?`url("${u}")`:`linear-gradient(135deg,${cor(l.titulo)},#000)`; $('#heroCapa').innerHTML = u?`<img src="${esc(u)}" alt="" style="object-fit:cover">`:gerada(l); }
@@ -391,7 +393,7 @@ function iniciar(nome, dados){
     l._b = norm(l.titulo+' '+(l.autor||'')+' '+l.genero);
     CONT[l.genero]=(CONT[l.genero]||0)+1;
   });
-  GENEROS = Object.keys(CONT).sort((a,b)=>(a==='Outros')-(b==='Outros')||CONT[b]-CONT[a]);
+  GENEROS = Object.keys(CONT).sort((a,b)=>(a==='Outros')-(b==='Outros')||(a==='Adulto (+18)')-(b==='Adulto (+18)')||CONT[b]-CONT[a]);
   $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
   $('#generoSel').innerHTML = `<option value="">Gêneros</option>` + GENEROS.map(g=>`<option>${esc(g)}</option>`).join('');
   $('#tipo').innerHTML = '<option value="">Todos os tipos</option>' + [...new Set(LIVROS.map(l=>l.tipo).filter(Boolean))].sort().map(t=>`<option>${esc(t)}</option>`).join('');
