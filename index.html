@@ -165,7 +165,7 @@ function mostrarMais() {
 }
 
 /* ---- capas reais (Open Library → Google Books), com cache no aparelho ---- */
-const CACHE_KEY = 'nb-capas-v1';
+const CACHE_KEY = 'nb-capas-v2';
 let capas = {}; try { capas = JSON.parse(localStorage.getItem(CACHE_KEY)||'{}'); } catch(e){}
 const salvarCache = () => { try { localStorage.setItem(CACHE_KEY, JSON.stringify(capas)); } catch(e){} };
 const fila = []; let ativos = 0;
@@ -176,15 +176,17 @@ async function buscarCapa(l) {
   const termo = l.titulo.replace(/\(.*?\)|\[.*?\]/g,'').trim();
   let url = '';
   try {
-    const q = 'intitle:' + encodeURIComponent(termo) + (l.autor ? '+inauthor:' + encodeURIComponent(l.autor) : '');
-    const g = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=1&fields=items(volumeInfo/imageLinks)`).then(r=>r.json());
-    const im = g.items?.[0]?.volumeInfo?.imageLinks;
-    if (im) url = (im.thumbnail||im.smallThumbnail).replace('http:','https:').replace('&edge=curl','');
+    const o = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(termo+' '+(l.autor||''))}&limit=5&fields=cover_i`).then(r=>r.json());
+    const d = (o.docs||[]).find(d=>d.cover_i);
+    if (d) url = `https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg`;
   } catch(e){}
   if (!url) try {
-    const o = await fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(termo)}${l.autor?'&author='+encodeURIComponent(l.autor):''}&limit=1&fields=cover_i`).then(r=>r.json());
-    if (o.docs?.[0]?.cover_i) url = `https://covers.openlibrary.org/b/id/${o.docs[0].cover_i}-M.jpg`;
-  } catch(e){}
+    const q = 'intitle:' + encodeURIComponent(termo) + (l.autor ? '+inauthor:' + encodeURIComponent(l.autor) : '');
+    const r = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=1&fields=items(volumeInfo/imageLinks)`);
+    if (r.status === 429) return ''; // cota do Google esgotada hoje: não grava no cache, tenta outro dia
+    const im = (await r.json()).items?.[0]?.volumeInfo?.imageLinks;
+    if (im) url = (im.thumbnail||im.smallThumbnail).replace('http:','https:').replace('&edge=curl','');
+  } catch(e){ return ''; }
   capas[k] = url; salvarCache(); return url;
 }
 function processarFila(){
