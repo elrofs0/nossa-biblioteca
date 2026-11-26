@@ -171,8 +171,9 @@ async function processarArquivo(env, p) {
   if (!p.titulo) ({ titulo, autor } = await arrumarNome(env, p.arquivo, titulo, autor));
   if (!titulo || semLetras(titulo)) return "sem título (aguardando nome)";
   const chave = chaveDe(titulo, autor, nome.tipo);
-  const ja = await env.DB.prepare("SELECT id FROM livros WHERE chave = ?1 OR (fonte_chat = ?2 AND fonte_msg = ?3) OR (?4 <> '' AND file_unique_id = ?4) LIMIT 1")
-    .bind(chave, String(p.fonteChat), p.fonteMsg, p.fileUniqueId || "").first();
+  // Três consultas com índice (um OR faria o D1 ler a tabela inteira a cada livro).
+  const ja = await env.DB.prepare("SELECT id FROM livros WHERE chave = ?1 UNION ALL SELECT id FROM livros WHERE fonte_chat = ?2 AND fonte_msg = ?3 UNION ALL SELECT id FROM livros WHERE file_unique_id = ?4 LIMIT 1")
+    .bind(chave, String(p.fonteChat), p.fonteMsg, p.fileUniqueId || "\u0000").first();
   if (ja) return "repetido (ignorado)";
   const genero = ehAdulto(p.arquivo) ? "Adulto (+18)" : (p.genero && TOPICOS[p.genero] ? p.genero : await classificar(env, titulo, autor));
   const apple = await buscarApple(titulo, autor, p.tid);
