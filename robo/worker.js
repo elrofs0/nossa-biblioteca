@@ -25,6 +25,8 @@ const ESQUEMA = [
     titulo TEXT, autor TEXT, genero TEXT, tipo TEXT, tamanho TEXT, chave TEXT UNIQUE, file_unique_id TEXT, capa TEXT, sinopse TEXT,
     destino_msg INTEGER, status TEXT, busca TEXT, criado_em TEXT DEFAULT CURRENT_TIMESTAMP, UNIQUE (fonte_chat, fonte_msg))`,
   `CREATE INDEX IF NOT EXISTS livros_fuid ON livros (file_unique_id)`,
+  `CREATE TABLE IF NOT EXISTS fila (fonte_msg INTEGER PRIMARY KEY, ordem INTEGER, item TEXT, estado TEXT DEFAULT 'pendente', resultado TEXT)`,
+  `CREATE INDEX IF NOT EXISTS fila_ordem ON fila (estado, ordem)`,
 ];
 let pronto = false;
 async function preparar(env) {
@@ -269,15 +271,50 @@ async function admin(request, env, base) {
     await tg(env, "setMyCommands", { commands: [{ command: "start", description: "Como usar o robô" }, { command: "ajuda", description: "Ajuda e exemplos de busca" }] });
     return json({ ok: true, info: await tg(env, "getWebhookInfo", {}) });
   }
+  if (b.acao === "fila") {
+    const st = env.DB.prepare("INSERT OR IGNORE INTO fila (fonte_msg, ordem, item) VALUES (?1, ?2, ?3)");
+    const r = await env.DB.batch(b.itens.map((x) => st.bind(x.fonteMsg, x.ordem, JSON.stringify(x))));
+    return json({ ok: true, inseridos: r.reduce((s, x) => s + (x.meta.changes || 0), 0) });
+  }
+  if (b.acao === "rodar") return json(await rodarFila(env, b.max || 3));
   if (b.acao === "status") {
     const r = await env.DB.prepare("SELECT status, COUNT(*) n FROM livros GROUP BY status").all();
+    const q = await env.DB.prepare("SELECT estado, COUNT(*) n FROM fila GROUP BY estado").all();
+    const u = await env.DB.prepare("SELECT v FROM config WHERE k = 'fila_ult'").first();
     const f = await env.DB.prepare("SELECT * FROM fontes").all();
-    return json({ livros: r.results, fontes: f.results });
+    return json({ livros: r.results, fila: q.results, ultimaRodada: u?.v, fontes: f.results });
   }
   return json({ error: "ação desconhecida" }, 400);
 }
 
+/** Carga automática: a cada minuto o Cron publica alguns livros da fila (sem depender de PC ligado). */
+async function rodarFila(env, max = 15) {
+  const inicio = Date.now(), log = { publicados: 0, repetidos: 0, outros: 0, erro: "" };
+  const pend = await env.DB.prepare("SELECT fonte_msg, item FROM fila WHERE estado = 'pendente' ORDER BY ordem LIMIT ?1").bind(max * 3).all();
+  for (const linha of pend.results || []) {
+    if (log.publicados >= max || Date.now() - inicio > 45000) break;
+    let res;
+    try { res = await processarArquivo(env, JSON.parse(linha.item)); }
+    catch (e) {
+      log.erro = String(e?.message || e);
+      if (/retry after|Too Many/i.test(log.erro)) break; // limite do Telegram: para e tenta no próximo minuto
+      await env.DB.prepare("UPDATE fila SET estado = 'erro', resultado = ?1 WHERE fonte_msg = ?2").bind(log.erro.slice(0, 200), linha.fonte_msg).run();
+      continue;
+    }
+    await env.DB.prepare("UPDATE fila SET estado = 'feito', resultado = ?1 WHERE fonte_msg = ?2").bind(res, linha.fonte_msg).run();
+    if (res.startsWith("publicado")) { log.publicados++; await new Promise((r) => setTimeout(r, 2500)); }
+    else if (res.startsWith("repetido")) log.repetidos++; else log.outros++;
+  }
+  await env.DB.prepare("INSERT INTO config (k, v) VALUES ('fila_ult', ?1) ON CONFLICT(k) DO UPDATE SET v = ?1")
+    .bind(JSON.stringify({ em: new Date().toISOString(), ...log })).run();
+  return log;
+}
+
 export default {
+  async scheduled(event, env, ctx) {
+    await preparar(env);
+    await rodarFila(env, 8);
+  },
   async fetch(request, env) {
     const url = new URL(request.url);
     if (request.method === "OPTIONS") return new Response("ok", { headers: CORS });
